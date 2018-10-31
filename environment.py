@@ -17,6 +17,8 @@ class Environment():
         # Set dimensions and ranges of states, actions, and goals in order to configure actor/critic networks
         if model_name == "pendulum.xml":
             self.state_dim = 2*len(self.sim.data.qpos) + len(self.sim.data.qvel)
+        elif model_name == "reacher.xml":
+            self.state_dim = len(self.sim.data.qpos) + len(self.sim.data.qvel) + 2 # fingertip x,y
         else:
             self.state_dim = len(self.sim.data.qpos) + len(self.sim.data.qvel) # State will include (i) joint angles and (ii) joint velocities
         self.action_dim = len(self.sim.model.actuator_ctrlrange) # low-level action dim
@@ -65,6 +67,8 @@ class Environment():
         if self.name == "pendulum.xml":
             return np.concatenate([np.cos(self.sim.data.qpos),np.sin(self.sim.data.qpos),
                                self.sim.data.qvel])
+        elif self.name == "reacher.xml":
+            return np.concatenate([self.sim.data.qpos, self.sim.data.qvel, np.reshape(np.array(self.sim.data.get_body_xpos("fingertip")[:2]), self.sim.data.qpos.shape)])
         else:
             return np.concatenate((self.sim.data.qpos, self.sim.data.qvel))
 
@@ -142,7 +146,9 @@ class Environment():
 
             for i in range(3):
                 self.sim.data.mocap_pos[i] = joint_pos[i]
-            
+        elif self.name == "reacher.xml":
+            x, y = end_goal
+            self.sim.data.mocap_pos[0] = np.array([x,y,.01])
         else:
             assert False, "Provide display end goal function in environment.py file"
 
@@ -274,8 +280,10 @@ class Environment():
 
                 subgoal_ind += 1
             else:
+                return
                 # Visualize desired gripper position, which is elements 18-21 in subgoal vector
                 self.sim.data.mocap_pos[i] = subgoals[subgoal_ind]
                 # Visualize subgoal
                 self.sim.model.site_rgba[i][3] = 1
                 subgoal_ind += 1
+

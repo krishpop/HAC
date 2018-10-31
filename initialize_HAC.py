@@ -3,7 +3,7 @@ This is the starting file for the Hierarchical Actor-Critc (HAC) algorithm.  The
 by the user and instantiates the environment and agent. 
 """
 
-from design_agent_and_env import design_agent_and_env
+from design_agent_and_env_reacher import design_agent_and_env
 from options import parse_options
 from agent import Agent
 from run_HAC import run_HAC

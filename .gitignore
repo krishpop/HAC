@@ -1,0 +1,4 @@
+*models/
+performance_log.p
+*.swp
+*.pyc
